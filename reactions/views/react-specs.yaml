@@ -1,0 +1,92 @@
+swagger: "2.0"
+info:
+  description: "These are the reactions microservice specs"
+  version: "1.0.0"
+  title: "Reactions Microservice"
+schemes:
+- "http"
+paths:
+  /story/{story_id}/like:
+    get:
+      operationId: like
+      consumes: 
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in : "path"
+        name: "story_id"
+        required: true
+        description: The id of the story to react
+        type: string
+      responses:
+        '200':
+          description: "Like added"
+        '400':
+          description: "??"
+        '404':
+          description: "Story not valid"   
+          
+  /story/{story_id}/dislike:
+    get:
+      operationId: dislike
+      consumes: 
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in : "path"
+        name: "story_id"
+        required: true
+        type: string
+        description: The id of the story to react
+      responses:
+        '200':
+          description: "Dislike added"
+        '400':
+          description: "??"
+        '404':
+          description: "Story not valid"   
+          
+  /story/{story_id}/remove_like:
+    get:
+      operationId: remove_like
+      consumes: 
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in : "path"
+        name: "story_id"
+        required: true
+        type: string
+        description: The id of the story to react
+      responses:
+        '200':
+          description: "Like removed"
+        '400':
+          description: "??"
+        '404':
+          description: "Story not valid"   
+          
+  /story/{story_id}/remove_dislike:
+    get:
+      operationId: remove_dislike
+      consumes: 
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in : "path"
+        name: "story_id"
+        required: true
+        type: string
+        description: The id of the story to react
+      responses:
+        '200':
+          description: "Dislike removed"
+        '400':
+          description: "??"
+        '404':
+          description: "Story not valid"                
+  
