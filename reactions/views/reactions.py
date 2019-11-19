@@ -3,14 +3,28 @@ from flask import request, jsonify, abort
 from monolith.database import db, Story, Like, Dislike
 from sqlalchemy.sql.expression import func
 
+from jsonschema import validate, ValidationError
+
 reactions = SwaggerBlueprint('reactions', __name__, swagger_spec='./reactions/views/react-specs.yaml')
+
+schema= react.spec['definitions']
+reaction_schema=schema['Reaction']
 
 """
 The route can be used by a logged in user to like a published story.
 """
 @reactions.operation('like')
-def _like(story_id):
+def _like():
 
+    json_data = request.get_json()
+    try:
+        validate(json_data, schema=reaction_schema)
+    except ValidationError as error:
+        return abort(400)
+    
+    story_id = json_data['story_id']
+    user_id = json_data['user_id']
+    
     story = None #TODO Retrieve story via stories microservice
     if story is None:
         abort(404)
@@ -39,7 +53,16 @@ def _like(story_id):
 The route can be used by a logged in user to dislike a published story.
 """
 @reactions.operation('dislike')
-def _dislike(story_id):
+def _dislike():
+
+    json_data = request.get_json()
+    try:
+        validate(json_data, schema=reaction_schema)
+    except ValidationError as error:
+        return abort(400)
+    
+    story_id = json_data['story_id']
+    user_id = json_data['user_id']
 
     story = None #TODO Retrieve story via stories microservice
     if story is None:
@@ -70,7 +93,16 @@ The route can be used by a logged in user to remove a like
 from a published story.
 """
 @reactions.operation('remove_like')
-def _remove_like(story_id):
+def _remove_like():
+
+    json_data = request.get_json()
+    try:
+        validate(json_data, schema=reaction_schema)
+    except ValidationError as error:
+        return abort(400)
+    
+    story_id = json_data['story_id']
+    user_id = json_data['user_id']
 
     story = None #TODO Retrieve story via stories microservice
     if story is None:
@@ -91,7 +123,16 @@ The route can be used by a logged in user and to remove a dislike
 from a published story.
 """
 @reactions.operation('remove_dislike')
-def _remove_dislike(story_id):
+def _remove_dislike():
+
+    json_data = request.get_json()
+    try:
+        validate(json_data, schema=reaction_schema)
+    except ValidationError as error:
+        return abort(400)
+    
+    story_id = json_data['story_id']
+    user_id = json_data['user_id']
 
     story = None #TODO Retrieve story via stories microservice
     if story is None:

@@ -1,92 +1,105 @@
 swagger: "2.0"
 info:
-  description: "These are the reactions microservice specs"
+  description: "This microservice handles request to add/remove likes and dislikes"
   version: "1.0.0"
-  title: "Reactions Microservice"
+  title: "Stories Microservice"
 schemes:
 - "http"
 paths:
-  /story/{story_id}/like:
-    get:
+  /story/like:
+    put:
       operationId: like
       consumes: 
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in : "path"
-        name: "story_id"
+      - in : "body"
+        name: "body"
         required: true
-        description: The id of the story to react
-        type: string
+        description: Object containing story_id and user_id
+        schema:
+          $ref: "#/definitions/Reaction"
       responses:
         '200':
           description: "Like added"
         '400':
-          description: "??"
+          description: "Malformed request"
         '404':
-          description: "Story not valid"   
+          description: "Story not valid"
+    delete:
+        operationId: remove_like
+        consumes: 
+        - "application/json"
+        produces:
+        - "application/json"
+        parameters:
+        - in : "body"
+          name: "body"
+          required: true
+          description: Object containing story_id and user_id
+          schema:
+            $ref: "#/definitions/Reaction"
+        responses:
+          '200':
+            description: "Like removed"
+          '400':
+            description: "Malformed request"
+          '404':
+            description: "Story not valid"   
           
-  /story/{story_id}/dislike:
-    get:
+  /story/dislike:
+    put:
       operationId: dislike
       consumes: 
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in : "path"
-        name: "story_id"
+      - in : "body"
+        name: "body"
         required: true
-        type: string
-        description: The id of the story to react
+        description: Object containing story_id and user_id
+        schema:
+          $ref: "#/definitions/Reaction"
       responses:
         '200':
           description: "Dislike added"
         '400':
-          description: "??"
+          description: "Malformed request"
         '404':
-          description: "Story not valid"   
-          
-  /story/{story_id}/remove_like:
-    get:
-      operationId: remove_like
-      consumes: 
-      - "application/json"
-      produces:
-      - "application/json"
-      parameters:
-      - in : "path"
-        name: "story_id"
-        required: true
-        type: string
-        description: The id of the story to react
-      responses:
-        '200':
-          description: "Like removed"
-        '400':
-          description: "??"
-        '404':
-          description: "Story not valid"   
-          
-  /story/{story_id}/remove_dislike:
-    get:
+          description: "Story not valid"
+    delete:
       operationId: remove_dislike
       consumes: 
       - "application/json"
       produces:
       - "application/json"
       parameters:
-      - in : "path"
-        name: "story_id"
+      - in : "body"
+        name: "body"
         required: true
-        type: string
-        description: The id of the story to react
+        description: Object containing story_id and user_id
+        schema:
+          $ref: "#/definitions/Reaction"
       responses:
         '200':
           description: "Dislike removed"
         '400':
-          description: "??"
+          description: "Malformed request"
         '404':
-          description: "Story not valid"                
-  
+          description: "Story not valid"  
+
+definitions:
+  Reaction:
+    type: "object"
+    properties:
+      story_id:
+        type: "string"
+      user_id:
+        type: "string"
+    required:
+    - "story_id"
+    - "user_id"
+    additionalProperties: false
+    
