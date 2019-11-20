@@ -1,23 +1,22 @@
 swagger: "2.0"
 info:
-  description: "This microservice handles request to add/remove likes and dislikes"
+  description: "This microservice handles request to add/remove likes and dislikes and retrieve a list of stories we are interacted with (used by Rank microservice)"
   version: "1.0.0"
-  title: "Stories Microservice"
+  title: "Reactions Microservice"
 schemes:
 - "http"
 paths:
-  /story/like:
-    put:
+  /like:
+    post:
+      summary: "Add like to a story"
       operationId: like
       consumes: 
-      - "application/json"
-      produces:
       - "application/json"
       parameters:
       - in : "body"
         name: "body"
         required: true
-        description: Object containing story_id and user_id
+        description: Object containing user_id and story_id
         schema:
           $ref: "#/definitions/Reaction"
       responses:
@@ -25,19 +24,18 @@ paths:
           description: "Like added"
         '400':
           description: "Malformed request"
-        '404':
-          description: "Story not valid"
+        '409':
+          description: "Story already liked"
     delete:
+        summary: "Delete like from a story"
         operationId: remove_like
         consumes: 
-        - "application/json"
-        produces:
         - "application/json"
         parameters:
         - in : "body"
           name: "body"
           required: true
-          description: Object containing story_id and user_id
+          description: Object containing user_id and story_id
           schema:
             $ref: "#/definitions/Reaction"
         responses:
@@ -46,20 +44,19 @@ paths:
           '400':
             description: "Malformed request"
           '404':
-            description: "Story not valid"   
-          
-  /story/dislike:
-    put:
+            description: "No like to remove"
+
+  /dislike:
+    post:
+      summary: "Add dislike to a story"
       operationId: dislike
       consumes: 
-      - "application/json"
-      produces:
       - "application/json"
       parameters:
       - in : "body"
         name: "body"
         required: true
-        description: Object containing story_id and user_id
+        description: Object containing user_id and story_id
         schema:
           $ref: "#/definitions/Reaction"
       responses:
@@ -67,19 +64,18 @@ paths:
           description: "Dislike added"
         '400':
           description: "Malformed request"
-        '404':
-          description: "Story not valid"
+        '409':
+          description: "Story already disliked"
     delete:
+      summary: "Delete dislike from a story"
       operationId: remove_dislike
       consumes: 
-      - "application/json"
-      produces:
       - "application/json"
       parameters:
       - in : "body"
         name: "body"
         required: true
-        description: Object containing story_id and user_id
+        description: Object containing user_id and story_id
         schema:
           $ref: "#/definitions/Reaction"
       responses:
@@ -88,18 +84,52 @@ paths:
         '400':
           description: "Malformed request"
         '404':
-          description: "Story not valid"  
-
+          description: "No dislike to remove"  
+  
+  /get-reacted-stories/{user-id}:
+    get:
+      summary: "Retrieve a list of stories we are interacted with (used by Rank microservice)"
+      description: "used by Rank microservice only"
+      operationId: getReactedStories
+      produces: 
+      - "application/json"
+      parameters:
+      - in: "path"
+        name: "user-id"
+        required: true
+        type: "integer"
+      responses:
+        '200':
+          description: "List successfully given"
+          schema:
+            $ref: '#/definitions/Stories_id'
+        '400':
+          description: "Malformed request"
+          
 definitions:
   Reaction:
     type: "object"
     properties:
-      story_id:
-        type: "string"
       user_id:
-        type: "string"
+        type: "integer"
+      story_id:
+        type: "integer"
     required:
     - "story_id"
     - "user_id"
     additionalProperties: false
-    
+    xml:
+      name: "Reaction"
+      
+  Stories_id:
+    type: "object"
+    properties:
+      stories_id:
+        type: "array"
+        items:
+          type: "integer"
+    required:
+    - "stories_id"
+    additionalProperties: false
+    xml:
+      name: "Stories_id"
