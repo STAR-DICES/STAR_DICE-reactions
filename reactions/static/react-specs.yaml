@@ -48,7 +48,7 @@ paths:
           '409':
             description: "No like to remove"
           '404':
-          description: "Story not found"
+            description: "Story not found"
 
   /dislike:
     post:
@@ -94,7 +94,7 @@ paths:
         '404':
           description: "Story not found"
   
-  /get-reacted-stories/{user-id}:
+  /get-reacted-stories/{user_id}:
     get:
       summary: "Retrieve a list of stories we are interacted with (used by Rank microservice)"
       description: "used by Rank microservice only"
@@ -103,7 +103,7 @@ paths:
       - "application/json"
       parameters:
       - in: "path"
-        name: "user-id"
+        name: "user_id"
         required: true
         type: "integer"
       responses:
