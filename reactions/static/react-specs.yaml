@@ -98,7 +98,7 @@ paths:
     get:
       summary: "Retrieve a list of stories we are interacted with (used by Rank microservice)"
       description: "used by Rank microservice only"
-      operationId: getReactedStories
+      operationId: get_reacted_stories
       produces: 
       - "application/json"
       parameters:

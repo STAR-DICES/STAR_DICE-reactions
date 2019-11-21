@@ -22,8 +22,23 @@ def start(test = False):
     db.init_app(app)
     db.create_all(app=app)
     
-    #with app.app_context():
-    # TODO Initialize env to test
+    with app.app_context():
+        q = db.session.query(Like)
+        like = q.first()
+        if like is None:
+            example = Like()
+            example.story_id= 1
+            example.liker_id= 2
+            db.session.add(example)
+            db.session.commit()
+        s = db.session.query(Dislike)
+        dislike = q.first()
+        if dislike is None:
+            example = Dislike()
+            example.story_id=1
+            example.disliker_id= 3
+            db.session.add(example)
+            db.session.commit()
     
     return app
 

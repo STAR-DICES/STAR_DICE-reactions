@@ -142,7 +142,7 @@ def _remove_dislike():
 """
 The route is used to retrieve the stories a user has already reacted to
 """   
-@reactions.operation('getReactedStories')
+@reactions.operation('get_reacted_stories')
 def _get_reacted_stories(user_id):
     stories = []
     likes = Like.query.filter_by(user_id=user_id).all()

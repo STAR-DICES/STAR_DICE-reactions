@@ -1,7 +1,7 @@
 import unittest
 
-from monolith.app import create_app
-from monolith.database import db, User, Story, Like, Dislike
+from reactions.app import create_app
+from reactions.database import db, Like, Dislike
 
 class TestLike(unittest.TestCase):
     
