@@ -26,6 +26,8 @@ paths:
           description: "Malformed request"
         '409':
           description: "Story already liked"
+        '404':
+          description: "Story not found"
     delete:
         summary: "Delete like from a story"
         operationId: remove_like
@@ -43,8 +45,10 @@ paths:
             description: "Like removed"
           '400':
             description: "Malformed request"
-          '404':
+          '409':
             description: "No like to remove"
+          '404':
+          description: "Story not found"
 
   /dislike:
     post:
@@ -66,6 +70,8 @@ paths:
           description: "Malformed request"
         '409':
           description: "Story already disliked"
+        '404':
+          description: "Story not found"
     delete:
       summary: "Delete dislike from a story"
       operationId: remove_dislike
@@ -83,8 +89,10 @@ paths:
           description: "Dislike removed"
         '400':
           description: "Malformed request"
+        '409':
+          description: "No dislike to remove"
         '404':
-          description: "No dislike to remove"  
+          description: "Story not found"
   
   /get-reacted-stories/{user-id}:
     get:

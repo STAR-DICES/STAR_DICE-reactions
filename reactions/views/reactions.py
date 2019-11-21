@@ -23,12 +23,13 @@ def _like():
         return abort(400)
     
     story_id = json_data['story_id']
-    user_id = json_data['user_id']
+    current_user_id = json_data['user_id']
     
-    story = None #TODO Retrieve story via stories microservice
-    if story is None:
+    #Retrieve story via stories microservice
+    r = requests.get(story_url + "/story/" + story_id)
+    if r.status_code == 404:
         abort(404)
-
+    
     q = Like.query.filter_by(liker_id=current_user.id, story_id=story_id)
     if q.first() is None:
         new_like = Like()
@@ -38,16 +39,14 @@ def _like():
         d = Dislike.query.filter_by(disliker_id=current_user.id, story_id=story_id).first()
         if d is not None: 
             db.session.delete(d)
-            #TODO Send to stories microservice 
-            #async_like.delay(story_id, True)
-        else:
-            #TODO Send to stories microservice 
-            #async_like.delay(story_id)
+            #Send to stories microservice
+            requests.delete(story_url + "/dislike/" + story_id)
+        requests.post(story_url + "/like/" + story_id)
         db.session.add(new_like)
         db.session.commit()
-        return jsonify({'message' : 'Like added!'})
+        return '', 200
     else:
-        return jsonify({'message' : 'You\'ve already liked this story!'})
+        return abort(409)
 
 """
 The route can be used by a logged in user to dislike a published story.
@@ -62,10 +61,11 @@ def _dislike():
         return abort(400)
     
     story_id = json_data['story_id']
-    user_id = json_data['user_id']
+    current_user_id = json_data['user_id']
 
-    story = None #TODO Retrieve story via stories microservice
-    if story is None:
+    #Retrieve story via stories microservice
+    r = requests.get(story_url + "/story/" + story_id)
+    if r.status_code == 404:
         abort(404)
 
     q = Dislike.query.filter_by(disliker_id=current_user.id, story_id=story_id)
@@ -77,16 +77,14 @@ def _dislike():
         l = Like.query.filter_by(liker_id=current_user.id, story_id=story_id).first()
         if l is not None:
             db.session.delete(l)
-            #TODO Send to stories microservice 
-            #async_dislike.delay(story_id, True)
-        else:
-            #TODO Send to stories microservice 
-            #async_dislike.delay(story_id)
+            #Send to stories microservice 
+            requests.delete(story_url + "/like/" + story_id)
+        requests.post(story_url + "/dislike/" + story_id)
         db.session.add(new_dislike)
         db.session.commit()
-        return jsonify({'message' : 'Dislike added!'})
+        return '', 200
     else:
-        return jsonify({'message' : 'You\'ve already disliked this story!'})
+        return abort(409)
 
 """
 The route can be used by a logged in user to remove a like
@@ -102,21 +100,22 @@ def _remove_like():
         return abort(400)
     
     story_id = json_data['story_id']
-    user_id = json_data['user_id']
+    current_user_id = json_data['user_id']
 
-    story = None #TODO Retrieve story via stories microservice
-    if story is None:
+    #Retrieve story via stories microservice
+    r = requests.get(story_url + "/story/" + story_id)
+    if r.status_code == 404:
         abort(404)
         
     l = Like.query.filter_by(liker_id=current_user.id, story_id=story_id).first()
     if l is None:
-        return jsonify({'message' : 'You have to like it first!'})
+        return abort(409)
     else:
-        #TODO Send to stories microservice 
-        #async_remove_like.delay(story_id)
+        #Send to stories microservice
+        requests.delete(story_url + "/like/" + story_id) 
         db.session.delete(l)
         db.session.commit()
-        return jsonify({'message' : 'You removed your like'})
+        return '', 200
     
 """
 The route can be used by a logged in user and to remove a dislike
@@ -132,18 +131,37 @@ def _remove_dislike():
         return abort(400)
     
     story_id = json_data['story_id']
-    user_id = json_data['user_id']
+    current_user_id = json_data['user_id']
 
-    story = None #TODO Retrieve story via stories microservice
-    if story is None:
+    #Retrieve story via stories microservice
+    r = requests.get(story_url + "/story/" + story_id)
+    if r.status_code == 404:
         abort(404)
     
     d = Dislike.query.filter_by(disliker_id=current_user.id, story_id=story_id).first()
     if d is None:
-        return jsonify({'message' : 'You didn\'t dislike it yet..'})
+        return abort(409)
     else:
-        #TODO Send to stories microservice 
-        #async_remove_dislike.delay(story_id)
+        #Send to stories microservice 
+        requests.delete(story_url + "/dislike/" + story_id) 
         db.session.delete(d)
         db.session.commit()
-        return jsonify({'message' : 'You removed your dislike!'})
+        return '', 200
+
+"""
+The route is used to retrieve the stories a user has already reacted to
+"""   
+@reactions.operation('getReactedStories')
+def _get_Reacted_Stories(user_id):
+    stories = []
+    likes = Like.query.filter_by(user_id=user_id).all()
+    for l in likes:
+        stories.append(l.story_id)
+    dislikes = Dislike.query.filter_by(user_id=user_id).all()
+    for d in dislikes:
+        stories.append(d.story_id)
+    
+    return jsonify({'stories_id' : stories})
+
+
+
