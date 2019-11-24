@@ -1,64 +1,54 @@
-import unittest
-
-from reactions.app import create_app
+import json
+import requests
 from reactions.database import db, Like, Dislike
+from reactions.views.test.TestHelper import TestHelper
 
-class TestLike(unittest.TestCase):
-    
-    #TODO
-    ''' 
-    def setUp(self):
-        self.app = create_app(test=True)
-        self.context = self.app.app_context()
-        self.app = self.app.test_client()
-        
-    def tearDown(self):
-        with self.context:
-            db.drop_all()
+class TestLike(TestHelper):
     
     def test_single_like_remove_like(self):
-        reply = self.app.post('/login', data={'email': 'example@example.com', 'password': 'admin'})
-        self.assertEqual(reply.status_code, 302)
-        reply = self.app.get('/story/1/like')
+        data = {'story_id' : 1, 'user_id' : 1}
+        headers = {'Content-type': 'application/json'}
+        reply = self.client.post('/like', json=data, headers=headers)
+        self.assertEqual(reply.status_code, 200)
         with self.context:
             l = Like.query.filter_by(liker_id=1, story_id=1).first()
             self.assertIsNotNone(l)
-        reply = self.app.get('/story/1/remove_like')
+        reply = self.client.delete('/like', json=data)
         with self.context:
             l = Like.query.filter_by(liker_id=1, story_id=1).first()
             self.assertIsNone(l)
-    
+   
     def test_not_existing_story(self):
-        reply = self.app.post('/login', data={'email': 'example@example.com', 'password': 'admin'})
-        self.assertEqual(reply.status_code, 302)
-        reply = self.app.get('/story/5/like')
+        data = {'story_id' : 5, 'user_id' : 1}
+        headers = {'Content-type': 'application/json'}
+        reply = self.client.post('/like', json=data, headers=headers)
         self.assertEqual(reply.status_code, 404)
         
     def test_single_dislike_remove_dislike(self):
-        reply = self.app.post('/login', data={'email': 'example@example.com', 'password': 'admin'})
-        self.assertEqual(reply.status_code, 302)
-        reply = self.app.get('/story/1/dislike')
+        data = {'story_id' : 1, 'user_id' : 1}
+        headers = {'Content-type': 'application/json'}
+        reply = self.client.post('/dislike', json=data, headers=headers)
         with self.context:
             l = Dislike.query.filter_by(disliker_id=1, story_id=1).first()
             self.assertIsNotNone(l)
-        reply = self.app.get('/story/1/remove_dislike')
+        reply = self.client.delete('/dislike', json=data, headers=headers)
         with self.context:
             l = Dislike.query.filter_by(disliker_id=1, story_id=1).first()
             self.assertIsNone(l)
          
     def test_like_dislike(self):
-        reply = self.app.post('/login', data={'email': 'example@example.com', 'password': 'admin'})
-        self.assertEqual(reply.status_code, 302)
-        reply = self.app.get('/story/1/like')
+        data = {'story_id' : 1, 'user_id' : 1}
+        headers = {'Content-type': 'application/json'}
+        reply = self.client.post('/like', json=data, headers=headers)
         with self.context:
             l = Like.query.filter_by(liker_id=1, story_id=1).first()
             self.assertIsNotNone(l)
             l = Dislike.query.filter_by(disliker_id=1, story_id=1).first()
             self.assertIsNone(l)
-        reply = self.app.get('/story/1/dislike')
+        reply = self.client.post('/dislike', json=data, headers=headers)
         with self.context:
             l = Dislike.query.filter_by(disliker_id=1, story_id=1).first()
             self.assertIsNotNone(l)
             l = Like.query.filter_by(liker_id=1, story_id=1).first()
             self.assertIsNone(l)
-   '''
+

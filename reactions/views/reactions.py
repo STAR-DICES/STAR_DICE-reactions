@@ -1,13 +1,14 @@
 from flakon import SwaggerBlueprint
-from flask import request, jsonify, abort
+from flask import request, jsonify, abort, current_app
 from reactions.database import db, Like, Dislike
+from reactions.views.test.stub import _request_story
 from sqlalchemy.sql.expression import func
 import requests
 from jsonschema import validate, ValidationError
 
-reactions = SwaggerBlueprint('reactions', __name__, swagger_spec='./reactions/static/react-specs.yaml')
+reactions = SwaggerBlueprint('reactions', __name__, swagger_spec='react-specs.yaml')
 
-story_url= 'story docker ip goes here'
+story_url= 'http://story docker ip goes here'
 
 
 """
@@ -15,15 +16,22 @@ The route can be used by a logged in user to like a published story.
 """
 @reactions.operation('like')
 def _like():
+
     if general_validator('like', request):
         json_data = request.get_json()
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
         
         #Retrieve story via stories microservice
-        r = requests.get(story_url + "/story/" + story_id)
-        if r.status_code == 404:
-            abort(404)
+        if current_app.config['TESTING']:
+            pass
+            r = _request_story(story_id)
+            if r == 404:
+                abort(404)
+        else: 
+            r = requests.get(story_url + "/story/" + story_id)
+            if r.status_code == 404:
+                abort(404)
         
         q = Like.query.filter_by(liker_id=current_user_id, story_id=story_id)
         if q.first() is None:
@@ -35,8 +43,10 @@ def _like():
             if d is not None: 
                 db.session.delete(d)
                 #Send to stories microservice
-                requests.delete(story_url + "/dislike/" + story_id)
-            requests.post(story_url + "/like/" + story_id)
+                if current_app.config['TESTING'] == False:
+                    requests.delete(story_url + "/dislike/" + story_id)
+            if current_app.config['TESTING'] == False:
+                requests.post(story_url + "/like/" + story_id)
             db.session.add(new_like)
             db.session.commit()
             return '', 200
@@ -57,9 +67,14 @@ def _dislike():
         current_user_id = json_data['user_id']
 
         #Retrieve story via stories microservice
-        r = requests.get(story_url + "/story/" + story_id)
-        if r.status_code == 404:
-            abort(404)
+        if current_app.config['TESTING']:
+            r = _request_story(story_id)
+            if r == 404:
+                abort(404)
+        else: 
+            r = requests.get(story_url + "/story/" + story_id)
+            if r.status_code == 404:
+                abort(404)
 
         q = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id)
         if q.first() is None:
@@ -70,9 +85,11 @@ def _dislike():
             l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
             if l is not None:
                 db.session.delete(l)
-                #Send to stories microservice 
-                requests.delete(story_url + "/like/" + story_id)
-            requests.post(story_url + "/dislike/" + story_id)
+                #Send to stories microservice
+                if current_app.config['TESTING'] == False: 
+                    requests.delete(story_url + "/like/" + story_id)
+            if current_app.config['TESTING'] == False:
+                requests.post(story_url + "/dislike/" + story_id)
             db.session.add(new_dislike)
             db.session.commit()
             return '', 200
@@ -94,16 +111,23 @@ def _remove_like():
         current_user_id = json_data['user_id']
 
         #Retrieve story via stories microservice
-        r = requests.get(story_url + "/story/" + story_id)
-        if r.status_code == 404:
-            abort(404)
+        if current_app.config['TESTING']:
+            pass
+            r = _request_story(story_id)
+            if r == 404:
+                abort(404)
+        else: 
+            r = requests.get(story_url + "/story/" + story_id)
+            if r.status_code == 404:
+                abort(404)
             
         l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
         if l is None:
             return abort(409)
         else:
             #Send to stories microservice
-            requests.delete(story_url + "/like/" + story_id) 
+            if current_app.config['TESTING'] == False:
+                requests.delete(story_url + "/like/" + story_id) 
             db.session.delete(l)
             db.session.commit()
             return '', 200
@@ -121,18 +145,24 @@ def _remove_dislike():
         json_data = request.get_json()
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
-
+        
         #Retrieve story via stories microservice
-        r = requests.get(story_url + "/story/" + story_id)
-        if r.status_code == 404:
-            abort(404)
+        if current_app.config['TESTING']:
+            r = _request_story(story_id)
+            if r == 404:
+                abort(404)
+        else: 
+            r = requests.get(story_url + "/story/" + story_id)
+            if r.status_code == 404:
+                abort(404)
         
         d = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id).first()
         if d is None:
             return abort(409)
         else:
-            #Send to stories microservice 
-            requests.delete(story_url + "/dislike/" + story_id) 
+            #Send to stories microservice
+            if current_app.config['TESTING'] == False:
+                requests.delete(story_url + "/dislike/" + story_id) 
             db.session.delete(d)
             db.session.commit()
             return '', 200
