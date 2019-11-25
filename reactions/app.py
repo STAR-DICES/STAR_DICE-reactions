@@ -1,8 +1,11 @@
 import datetime
 import json
 import os
+
 from reactions.database import db, Like, Dislike
 from reactions.views import blueprints
+from reactions.request import real_request, test_request
+
 from flakon import create_app
 from swagger_ui import api_doc
 
@@ -11,13 +14,15 @@ def start(test = False):
     app.config['WTF_CSRF_SECRET_KEY'] = 'A SECRET KEY'
     app.config['SECRET_KEY'] = 'ANOTHER ONE'
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///reactions.db'
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     if test:
         app.config['TESTING'] = True
         app.config['CELERY_ALWAYS_EAGER'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
         app.config['WTF_CSRF_ENABLED'] = False
-        app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    
+        app.request = test_request
+    else:
+        app.request = real_request
     api_doc(app, config_path='./reactions/react-specs.yaml', url_prefix='/api', title='API doc')
     db.init_app(app)
     db.create_all(app=app)
@@ -44,4 +49,4 @@ def start(test = False):
 
 if __name__ == '__main__':
     app = start()
-    app.run(host=0.0.0.0)
+    app.run(debug=True, host='0.0.0.0')
