@@ -6,7 +6,7 @@ from sqlalchemy.sql.expression import func
 import requests
 from jsonschema import validate, ValidationError
 
-reactions = SwaggerBlueprint('reactions', __name__, swagger_spec='react-specs.yaml')
+reactions = SwaggerBlueprint('reactions', __name__, swagger_spec='./reactions/react-specs.yaml')
 
 story_url= 'http://story docker ip goes here'
 

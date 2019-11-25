@@ -18,7 +18,7 @@ def start(test = False):
         app.config['WTF_CSRF_ENABLED'] = False
         app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     
-    api_doc(app, config_path='./reactions/static/react-specs.yaml', url_prefix='/api', title='API doc')
+    api_doc(app, config_path='./reactions/react-specs.yaml', url_prefix='/api', title='API doc')
     db.init_app(app)
     db.create_all(app=app)
     
@@ -44,4 +44,4 @@ def start(test = False):
 
 if __name__ == '__main__':
     app = start()
-    app.run()
+    app.run(host=0.0.0.0)
