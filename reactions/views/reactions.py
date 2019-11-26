@@ -19,27 +19,27 @@ def _like():
         json_data = request.get_json()
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
-        
-        #Retrieve story via stories microservice
-        r = app.request.get_story(story_id)
-        if r.status_code == 404:
-            abort(404)
-       
-        q = Like.query.filter_by(liker_id=current_user_id, story_id=story_id)
-        if q.first() is None:
-            new_like = Like()
-            new_like.liker_id = current_user_id
-            new_like.story_id = story_id
-            # remove dislike, if present
-            d = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id).first()
-            if d is not None: 
-                db.session.delete(d)
-                #Send to stories microservice
-                app.request.delete_reaction("dislike", story_id)
-            app.request.add_reaction("like", story_id)
-            db.session.add(new_like)
-            db.session.commit()
-            return '', 200
+        try:
+            r = app.request.get_story(story_id)
+            if r.status_code == 404:
+                abort(404)
+            q = Like.query.filter_by(liker_id=current_user_id, story_id=story_id)
+            if q.first() is None:
+                new_like = Like()
+                new_like.liker_id = current_user_id
+                new_like.story_id = story_id
+                # remove dislike, if present
+                d = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id).first()
+                if d is not None: 
+                    db.session.delete(d)
+                    #Send to stories microservice
+                    app.request.delete_reaction("dislike", story_id)
+                app.request.add_reaction("like", story_id)
+                db.session.add(new_like)
+                db.session.commit()
+                return '', 200
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            abort(500)
         else:
             return abort(409)
     else:
@@ -55,29 +55,31 @@ def _dislike():
         json_data = request.get_json()
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
-
+        try:
         #Retrieve story via stories microservice
-        r = app.request.get_story(story_id)
-        if r.status_code == 404:
-            abort(404)
+            r = app.request.get_story(story_id)
+            if r.status_code == 404:
+                abort(404)
 
-        q = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id)
-        if q.first() is None:
-            new_dislike = Dislike()
-            new_dislike.disliker_id = current_user_id
-            new_dislike.story_id = story_id
-            # remove like, if present
-            l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
-            if l is not None:
-                db.session.delete(l)
-                #Send to stories microservice
-                app.request.delete_reaction("like", story_id)
-            app.request.add_reaction("dislike", story_id)
-            db.session.add(new_dislike)
-            db.session.commit()
-            return '', 200
-        else:
-            return abort(409)
+            q = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id)
+            if q.first() is None:
+                new_dislike = Dislike()
+                new_dislike.disliker_id = current_user_id
+                new_dislike.story_id = story_id
+                # remove like, if present
+                l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
+                if l is not None:
+                    db.session.delete(l)
+                    #Send to stories microservice
+                    app.request.delete_reaction("like", story_id)
+                app.request.add_reaction("dislike", story_id)
+                db.session.add(new_dislike)
+                db.session.commit()
+                return '', 200
+            else:
+                return abort(409)
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            abort(500)
     else:
         abort(400)
 
@@ -92,21 +94,23 @@ def _remove_like():
         json_data = request.get_json()    
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
-
+        try:
         #Retrieve story via stories microservice
-        r = app.request.get_story(story_id)
-        if r.status_code == 404:
-            abort(404)
-            
-        l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
-        if l is None:
-            return abort(409)
-        else:
-            #Send to stories microservice
-            app.request.delete_reaction("like", story_id) 
-            db.session.delete(l)
-            db.session.commit()
-            return '', 200
+            r = app.request.get_story(story_id)
+            if r.status_code == 404:
+                abort(404)
+                
+            l = Like.query.filter_by(liker_id=current_user_id, story_id=story_id).first()
+            if l is None:
+                return abort(409)
+            else:
+                #Send to stories microservice
+                app.request.delete_reaction("like", story_id) 
+                db.session.delete(l)
+                db.session.commit()
+                return '', 200
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            abort(500)
     else:
         abort(400)
     
@@ -121,21 +125,23 @@ def _remove_dislike():
         json_data = request.get_json()
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
-        
+        try:
         #Retrieve story via stories microservice
-        r = app.request.get_story(story_id)
-        if r.status_code == 404:
-            abort(404)
-        
-        d = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id).first()
-        if d is None:
-            return abort(409)
-        else:
-            #Send to stories microservice
-            app.request.delete_reaction("dislike", story_id)
-            db.session.delete(d)
-            db.session.commit()
-            return '', 200
+            r = app.request.get_story(story_id)
+            if r.status_code == 404:
+                abort(404)
+            
+            d = Dislike.query.filter_by(disliker_id=current_user_id, story_id=story_id).first()
+            if d is None:
+                return abort(409)
+            else:
+                #Send to stories microservice
+                app.request.delete_reaction("dislike", story_id)
+                db.session.delete(d)
+                db.session.commit()
+                return '', 200
+        except (requests.exceptions.ConnectionError, requests.exceptions.Timeout):
+            abort(500)
     else:
         return "Not Found!", 404
 
