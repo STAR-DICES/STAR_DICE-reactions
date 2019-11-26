@@ -20,7 +20,7 @@ def _like():
         story_id = json_data['story_id']
         current_user_id = json_data['user_id']
         try:
-            r = app.request.get_story(story_id)
+            r = app.request.get_story(story_id, current_user_id)
             if r.status_code == 404:
                 abort(404)
             q = Like.query.filter_by(liker_id=current_user_id, story_id=story_id)
@@ -57,7 +57,7 @@ def _dislike():
         current_user_id = json_data['user_id']
         try:
         #Retrieve story via stories microservice
-            r = app.request.get_story(story_id)
+            r = app.request.get_story(story_id, current_user_id)
             if r.status_code == 404:
                 abort(404)
 
@@ -96,7 +96,7 @@ def _remove_like():
         current_user_id = json_data['user_id']
         try:
         #Retrieve story via stories microservice
-            r = app.request.get_story(story_id)
+            r = app.request.get_story(story_id, current_user_id)
             if r.status_code == 404:
                 abort(404)
                 
@@ -127,7 +127,7 @@ def _remove_dislike():
         current_user_id = json_data['user_id']
         try:
         #Retrieve story via stories microservice
-            r = app.request.get_story(story_id)
+            r = app.request.get_story(story_id, current_user_id)
             if r.status_code == 404:
                 abort(404)
             

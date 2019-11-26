@@ -11,8 +11,8 @@ class Request:
         self._add_reaction = add_reaction
         self._timeout = timeout
 
-    def get_story(self, story_id):
-        return self._get_story(story_id, self._timeout)
+    def get_story(self, story_id, user_id):
+        return self._get_story(story_id, user_id, self._timeout)
     def delete_reaction(self, reaction, story_id):
         return self._delete_reaction(reaction, story_id, self._timeout)
     def add_reaction(self, reaction, story_id):
@@ -65,8 +65,8 @@ def real_delete_reaction(reaction, story_id, timeout):
 def real_add_reaction(reaction, story_id, timeout):
     return requests.post(stories_url + "/" + str(reaction) + "/" + str(story_id), timeout=timeout)
 
-def real_get_story(story_id, timeout):
-    return requests.get(stories_url + "/story/" + str(story_id), timeout=timeout)
+def real_get_story(story_id, user_id, timeout):
+    return requests.get(stories_url + "/story/" + str(story_id) + "/" + str(user_id), timeout=timeout)
 
 
 test_request = Request(test_get_story, test_delete_reaction, test_add_reaction)
