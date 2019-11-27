@@ -37,7 +37,7 @@ def start(test = False):
             db.session.add(example)
             db.session.commit()
         s = db.session.query(Dislike)
-        dislike = q.first()
+        dislike = s.first()
         if dislike is None:
             example = Dislike()
             example.story_id=1
