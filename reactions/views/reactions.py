@@ -150,25 +150,14 @@ The route is used to retrieve the stories a user has already reacted to
 """   
 @reactions.operation('get_reacted_stories')
 def _get_reacted_stories(user_id):
-    user_id=int_validator(user_id)
-    if user_id is not None:
-        stories = []
-        likes = Like.query.filter(Like.liker_id==user_id).all()
-        for l in likes:
-            stories.append(l.story_id)
-        dislikes = Dislike.query.filter(Dislike.disliker_id==user_id).all()
-        for d in dislikes:
-            stories.append(d.story_id)
-        return jsonify({'stories_id' : stories})
-    else:
-        return "Not Found!", 404
-
-def int_validator(string):
-    try:
-        value= int(string)
-    except (ValueError, TypeError):
-        return None
-    return value
+    stories = []
+    likes = Like.query.filter(Like.liker_id==user_id).all()
+    for l in likes:
+        stories.append(l.story_id)
+    dislikes = Dislike.query.filter(Dislike.disliker_id==user_id).all()
+    for d in dislikes:
+        stories.append(d.story_id)
+    return jsonify({'stories_id' : stories})
 
 def general_validator(op_id, request):
     schema= reactions.spec['paths']

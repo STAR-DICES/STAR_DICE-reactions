@@ -29,6 +29,16 @@ class TestLike(TestCase):
             l = Like.query.filter_by(liker_id=1, story_id=1).first()
             self.assertIsNone(l)
 
+    def test_existing_reacted_stories(self):
+        reply = self.client.get('/get-reacted-stories/2')
+        self.assertEqual(reply.status_code, 200)
+        self.assertEqual(json.loads(reply.data), {'stories_id': [1]})
+
+    def test_nonexisting_reacted_stories(self):
+        reply = self.client.get('/get-reacted-stories/100')
+        self.assertEqual(reply.status_code, 200)
+        self.assertEqual(json.loads(reply.data), {'stories_id': []})
+
     def test_not_existing_story(self):
         data = {'story_id' : 5, 'user_id' : 1}
         reply = self.client.post('/like', json=data)
