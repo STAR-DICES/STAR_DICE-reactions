@@ -2,7 +2,7 @@ import requests
 import json
 
 
-stories_url = 'http://stories:5000'  # TODO: insert real stories microservice url
+stories_url = 'http://127.0.0.1:7000'  # TODO: insert real stories microservice url
 
 class Request:
     def __init__(self, get_story, delete_reaction, add_reaction, timeout=1):
@@ -44,7 +44,7 @@ existing_response = {
         }
 }
 
-def test_get_story(story_id, timeout):
+def test_get_story(story_id, user_id, timeout):
     if story_id == 1:
         return TestResponse(200, existing_response)
     return TestResponse(404, None)
